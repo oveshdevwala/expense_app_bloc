@@ -18,7 +18,7 @@ class ExpenseHome extends StatelessWidget {
     context.read<ExpBloc>().add(FetchExpenseEvent());
     var mq = MediaQuery.of(context);
     // var mqWidth = mq.size.width;
-    // var mqHeight = mq.size .height;
+    // var mqHeight = mq.size.height;
     return Scaffold(
         backgroundColor: UiColors.tealBg.withOpacity(0.6),
         appBar: AppBar(
