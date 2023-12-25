@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 List<DateWiseExpenseModel> dateWiseExpenses = [];
+
 class ExpenseHome extends StatelessWidget {
   const ExpenseHome({super.key});
   @override
@@ -108,93 +109,90 @@ class LandscapLay extends StatelessWidget {
       ),
     );
   }
-
 }
 
-  ListView expenseListView(BuildContext context) {
-    return ListView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: dateWiseExpenses.length,
-        itemBuilder: (_, index) {
-          var myData = dateWiseExpenses[index];
-          return Column(
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                    color: UiColors.tealBg.withOpacity(0.6),
-                    borderRadius: BorderRadius.circular(12)),
-                padding: const EdgeInsets.all(12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(myData.data,
-                        style: const TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w600)),
-                    Text(myData.totalAmount,
-                        style: const TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w600)),
-                  ],
-                ),
-              ),
-              ListView.builder(
-                  itemCount: myData.allTransactions.length,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemBuilder: (_, mindex) {
-                    var myExpData = myData.allTransactions;
-                    return InkWell(
-                      onLongPress: () {
-                        context.read<ExpBloc>().add(DeleteExpenseEvent(
-                            expId: myExpData[mindex].modelExpId));
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                            border: Border.all(color: UiColors.white),
-                            color: UiColors.tealBg.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(12)),
-                        margin: const EdgeInsets.all(8.0),
-                        child: ListTile(
-                          leading: CircleAvatar(
-                            radius: 30,
-                            backgroundColor:
-                                UiColors.appbarbg.withOpacity(0.7),
-                            child: Image.asset(
-                              ExpCategorys
-                                  .mCategory[
-                                      myExpData[mindex].modelExpCatagoryID]
-                                  .catImgPath,
-                              height: 39,
-                            ),
-                          ),
-                          title: Text(
-                            myExpData[mindex].modelExpTitle,
-                            style: const TextStyle(
-                                color: UiColors.black,
-                                fontWeight: FontWeight.w900),
-                          ),
-                          subtitle: Text(
-                            myExpData[mindex].modelExpDescription.toString(),
-                            style: const TextStyle(
-                                color: UiColors.textBlack54,
-                                fontWeight: FontWeight.w600),
-                          ),
-                          trailing: Text(
-                            myExpData[mindex].modelExpAmount.toString(),
-                            style: const TextStyle(
-                                color: UiColors.black,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16),
-                          ),
+ListView expenseListView(BuildContext context) {
+  return ListView.builder(
+    shrinkWrap: true,
+    physics: const NeverScrollableScrollPhysics(),
+    itemCount: dateWiseExpenses.length,
+    itemBuilder: (_, index) {
+      var myData = dateWiseExpenses[index];
+      return Column(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+                color: UiColors.tealBg.withOpacity(0.6),
+                borderRadius: BorderRadius.circular(12)),
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(myData.data,
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.w600)),
+                Text(myData.totalAmount,
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.w600)),
+              ],
+            ),
+          ),
+          ListView.builder(
+              itemCount: myData.allTransactions.length,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemBuilder: (_, mindex) {
+                var myExpData = myData.allTransactions;
+                return InkWell(
+                  onLongPress: () {
+                    context.read<ExpBloc>().add(DeleteExpenseEvent(
+                        expId: myExpData[mindex].modelExpId));
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                        border: Border.all(color: UiColors.white),
+                        color: UiColors.tealBg.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12)),
+                    margin: const EdgeInsets.all(8.0),
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        radius: 30,
+                        backgroundColor: UiColors.appbarbg.withOpacity(0.7),
+                        child: Image.asset(
+                          ExpCategorys
+                              .mCategory[myExpData[mindex].modelExpCatagoryID]
+                              .catImgPath,
+                          height: 39,
                         ),
                       ),
-                    );
-                  })
-            ],
-          );
-        },
+                      title: Text(
+                        myExpData[mindex].modelExpTitle,
+                        style: const TextStyle(
+                            color: UiColors.black, fontWeight: FontWeight.w900),
+                      ),
+                      subtitle: Text(
+                        myExpData[mindex].modelExpDescription.toString(),
+                        style: const TextStyle(
+                            color: UiColors.textBlack54,
+                            fontWeight: FontWeight.w600),
+                      ),
+                      trailing: Text(
+                        myExpData[mindex].modelExpAmount.toString(),
+                        style: const TextStyle(
+                            color: UiColors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16),
+                      ),
+                    ),
+                  ),
+                );
+              })
+        ],
       );
-  }
+    },
+  );
+}
+
 class PortraitLay extends StatelessWidget {
   PortraitLay({super.key, required this.state});
   ExpLoadedState state;
