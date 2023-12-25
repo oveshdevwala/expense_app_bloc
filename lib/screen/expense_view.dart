@@ -1,24 +1,18 @@
 import 'package:expense_app/app_constant/colors_const.dart';
-import 'package:expense_app/app_constant/datetime_utile.dart';
 import 'package:expense_app/app_constant/dummy_const.dart';
 import 'package:expense_app/bloc/exp_bloc.dart';
 import 'package:expense_app/bloc/exp_event.dart';
 import 'package:expense_app/bloc/exp_state.dart';
-import 'package:expense_app/models/expense_model.dart';
 import 'package:expense_app/screen/add_expense.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-List<DateWiseExpenseModel> dateWiseExpenses = [];
 
 class ExpenseHome extends StatelessWidget {
   const ExpenseHome({super.key});
   @override
   Widget build(BuildContext context) {
-    context.read<ExpBloc>().add(FetchExpenseEvent());
     var mq = MediaQuery.of(context);
-    // var mqWidth = mq.size.width;
-    // var mqHeight = mq.size.height;
+    context.read<ExpBloc>().add(FetchExpenseEvent());
     return Scaffold(
         backgroundColor: UiColors.tealBg.withOpacity(0.6),
         appBar: AppBar(
@@ -29,7 +23,6 @@ class ExpenseHome extends StatelessWidget {
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            //Done
             Navigator.push(context, MaterialPageRoute(
               builder: (_) {
                 return const AddExpenseScreen();
@@ -47,76 +40,38 @@ class ExpenseHome extends StatelessWidget {
               return Center(child: Text(state.errorMsg));
             }
             if (state is ExpLoadedState) {
+              context
+                  .read<ExpBloc>()
+                  .add(TotalExpAmountEvent(allExpenses: state.data));
               return mq.orientation == Orientation.landscape
-                  ? LandscapLay(state: state)
-                  : PortraitLay(state: state);
+                  ? landscapLay(context, state)
+                  : portraitLay(context, state);
             }
             return const SizedBox();
           },
         ));
   }
-}
 
-class LandscapLay extends StatelessWidget {
-  LandscapLay({super.key, required this.state});
-  ExpLoadedState state;
-  @override
-  Widget build(BuildContext context) {
+  Padding landscapLay(BuildContext context, ExpLoadedState state) {
     return Padding(
       padding: const EdgeInsets.all(15),
       child: Row(
         children: [
-          totalBalance(),
+          Expanded(flex: 1, child: totalBalance()),
           const SizedBox(width: 10),
-          expListBuilderMain(state, context),
+          Expanded(
+            flex: 3,
+            child: SingleChildScrollView(
+              child: expenseListView(context),
+            ),
+          )
         ],
       ),
     );
   }
 
-  Expanded totalBalance() {
-    return Expanded(
-      flex: 2,
-      child: Container(
-        // padding: const EdgeInsets.all(15),
-        decoration: BoxDecoration(
-            color: UiColors.tealBg.withOpacity(0.1),
-            border: Border.all(color: UiColors.white, width: 2),
-            borderRadius: BorderRadius.circular(12)),
-        child: const Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Total Balance',
-              style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-            ),
-            Text(
-              "00.0",
-              // '${state.data[index].modelExpAmount}',
-              style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
-            )
-          ],
-        ),
-      ),
-    );
-  }
-
-  Expanded expListBuilderMain(ExpLoadedState state, BuildContext context) {
-    filterDayWiseExpense(state.data);
-    return Expanded(
-      flex: 3,
-      child: SingleChildScrollView(
-        child: expenseListView(context),
-      ),
-    );
-  }
-}
-
-class PortraitLay extends StatelessWidget {
-  PortraitLay({super.key, required this.state});
-  ExpLoadedState state;
-  @override
-  Widget build(BuildContext context) {
+  SingleChildScrollView portraitLay(
+      BuildContext context, ExpLoadedState state) {
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -134,12 +89,13 @@ class PortraitLay extends StatelessWidget {
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: dateWiseExpenses.length,
+      itemCount: context.read<ExpBloc>().dateWiseExpenses.length,
       itemBuilder: (_, index) {
-        var myData = dateWiseExpenses[index];
+        var myData = context.read<ExpBloc>().dateWiseExpenses[index];
         return Column(
           children: [
             Container(
+              margin: const EdgeInsets.symmetric(horizontal: 8),
               decoration: BoxDecoration(
                   color: UiColors.tealBg.withOpacity(0.6),
                   borderRadius: BorderRadius.circular(12)),
@@ -229,55 +185,10 @@ class PortraitLay extends StatelessWidget {
           ),
           Text(
             "00.0",
-            // '${state.data[index].modelExpAmount}',
             style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
           )
         ],
       ),
     );
-  }
-}
-
-void filterDayWiseExpense(List<ExpenseModel> allExpenses) {
-  dateWiseExpenses.clear();
-  var listUniqueDates = [];
-
-  for (ExpenseModel eachExp in allExpenses) {
-    var mDate =
-        DateTimeUtils.getFormatedMilliS(int.parse(eachExp.modelExpTimeStamp));
-    if (!listUniqueDates.contains(mDate)) {
-      listUniqueDates.add(mDate);
-    }
-  }
-  for (String date in listUniqueDates) {
-    List<ExpenseModel> eachDateExp = [];
-    var totalAmt = 0.0;
-
-    for (ExpenseModel eachExp in allExpenses) {
-      var mDate =
-          DateTimeUtils.getFormatedMilliS(int.parse(eachExp.modelExpTimeStamp));
-
-      if (date == mDate) {
-        eachDateExp.add(eachExp);
-        if (eachExp.modelExpType == 0) {
-          totalAmt -= eachExp.modelExpAmount;
-        } else {
-          totalAmt += eachExp.modelExpAmount;
-        }
-      }
-    }
-    var today = DateTime.now();
-    var yesterday = DateTime.now().subtract(const Duration(days: 1));
-    if (date == DateTimeUtils.getFormateDateTime(today)) {
-      date = 'Today';
-    }
-    if (date == DateTimeUtils.getFormateDateTime(yesterday)) {
-      date = 'Yesterday';
-    }
-
-    dateWiseExpenses.add(DateWiseExpenseModel(
-        data: date,
-        totalAmount: totalAmt.toString(),
-        allTransactions: eachDateExp));
   }
 }

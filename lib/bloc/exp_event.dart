@@ -1,3 +1,5 @@
+import '../models/expense_model.dart';
+
 abstract class ExpEvent {}
 
 class AddExpenseEvent extends ExpEvent {}
@@ -16,4 +18,7 @@ class DeleteExpenseEvent extends ExpEvent {
   DeleteExpenseEvent({required this.expId});
 }
 
-class TotalExpAmount extends ExpEvent {}
+class TotalExpAmountEvent extends ExpEvent {
+  List<ExpenseModel> allExpenses;
+  TotalExpAmountEvent({required this.allExpenses});
+}
