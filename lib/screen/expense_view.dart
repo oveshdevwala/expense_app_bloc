@@ -112,88 +112,6 @@ class LandscapLay extends StatelessWidget {
   }
 }
 
-ListView expenseListView(BuildContext context) {
-  return ListView.builder(
-    shrinkWrap: true,
-    physics: const NeverScrollableScrollPhysics(),
-    itemCount: dateWiseExpenses.length,
-    itemBuilder: (_, index) {
-      var myData = dateWiseExpenses[index];
-      return Column(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-                color: UiColors.tealBg.withOpacity(0.6),
-                borderRadius: BorderRadius.circular(12)),
-            padding: const EdgeInsets.all(12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(myData.data,
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.w600)),
-                Text(myData.totalAmount,
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.w600)),
-              ],
-            ),
-          ),
-          ListView.builder(
-              itemCount: myData.allTransactions.length,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemBuilder: (_, mindex) {
-                var myExpData = myData.allTransactions;
-                return InkWell(
-                  onLongPress: () {
-                    context.read<ExpBloc>().add(DeleteExpenseEvent(
-                        expId: myExpData[mindex].modelExpId));
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                        border: Border.all(color: UiColors.white),
-                        color: UiColors.tealBg.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(12)),
-                    margin: const EdgeInsets.all(8.0),
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        radius: 30,
-                        backgroundColor: UiColors.appbarbg.withOpacity(0.7),
-                        child: Image.asset(
-                          ExpCategorys
-                              .mCategory[myExpData[mindex].modelExpCatagoryID]
-                              .catImgPath,
-                          height: 39,
-                        ),
-                      ),
-                      title: Text(
-                        myExpData[mindex].modelExpTitle,
-                        style: const TextStyle(
-                            color: UiColors.black, fontWeight: FontWeight.w900),
-                      ),
-                      subtitle: Text(
-                        myExpData[mindex].modelExpDescription.toString(),
-                        style: const TextStyle(
-                            color: UiColors.textBlack54,
-                            fontWeight: FontWeight.w600),
-                      ),
-                      trailing: Text(
-                        myExpData[mindex].modelExpAmount.toString(),
-                        style: const TextStyle(
-                            color: UiColors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16),
-                      ),
-                    ),
-                  ),
-                );
-              })
-        ],
-      );
-    },
-  );
-}
-
 class PortraitLay extends StatelessWidget {
   PortraitLay({super.key, required this.state});
   ExpLoadedState state;
@@ -205,39 +123,14 @@ class PortraitLay extends StatelessWidget {
           const SizedBox(height: 20),
           totalBalance(),
           const SizedBox(height: 10),
-          expListBuilderMain(state, context),
+          expenseListView(context),
           const SizedBox(height: 70)
         ],
       ),
     );
   }
 
-  Container totalBalance() {
-    return Container(
-      padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(
-          color: UiColors.tealBg.withOpacity(0.1),
-          border: Border.all(color: UiColors.white, width: 2),
-          borderRadius: BorderRadius.circular(12)),
-      child: const Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            'Total Balance',
-            style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-          ),
-          Text(
-            "00.0",
-            // '${state.data[index].modelExpAmount}',
-            style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
-          )
-        ],
-      ),
-    );
-  }
-
-  ListView expListBuilderMain(ExpLoadedState state, BuildContext context) {
-    filterDayWiseExpense(state.data);
+  ListView expenseListView(BuildContext context) {
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -247,7 +140,6 @@ class PortraitLay extends StatelessWidget {
         return Column(
           children: [
             Container(
-              margin: const EdgeInsets.symmetric(horizontal: 7),
               decoration: BoxDecoration(
                   color: UiColors.tealBg.withOpacity(0.6),
                   borderRadius: BorderRadius.circular(12)),
@@ -270,17 +162,17 @@ class PortraitLay extends StatelessWidget {
                 physics: const NeverScrollableScrollPhysics(),
                 itemBuilder: (_, mindex) {
                   var myExpData = myData.allTransactions;
-                  return Container(
-                    decoration: BoxDecoration(
-                        border: Border.all(color: UiColors.white),
-                        color: UiColors.tealBg.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(12)),
-                    margin: const EdgeInsets.all(8.0),
-                    child: InkWell(
-                      onLongPress: () {
-                        context.read<ExpBloc>().add(DeleteExpenseEvent(
-                            expId: myExpData[mindex].modelExpId));
-                      },
+                  return InkWell(
+                    onLongPress: () {
+                      context.read<ExpBloc>().add(DeleteExpenseEvent(
+                          expId: myExpData[mindex].modelExpId));
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                          border: Border.all(color: UiColors.white),
+                          color: UiColors.tealBg.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12)),
+                      margin: const EdgeInsets.all(8.0),
                       child: ListTile(
                         leading: CircleAvatar(
                           radius: 30,
@@ -318,6 +210,30 @@ class PortraitLay extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+
+  Container totalBalance() {
+    return Container(
+      padding: const EdgeInsets.all(15),
+      decoration: BoxDecoration(
+          color: UiColors.tealBg.withOpacity(0.1),
+          border: Border.all(color: UiColors.white, width: 2),
+          borderRadius: BorderRadius.circular(12)),
+      child: const Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            'Total Balance',
+            style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+          ),
+          Text(
+            "00.0",
+            // '${state.data[index].modelExpAmount}',
+            style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
+          )
+        ],
+      ),
     );
   }
 }
