@@ -5,11 +5,12 @@ import 'package:expense_app/app_constant/dummy_const.dart';
 import 'package:expense_app/bloc/exp_bloc.dart';
 import 'package:expense_app/bloc/exp_event.dart';
 import 'package:expense_app/screen/expense_view.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
-import '../widgets/custom_widgets.dart';
+import '../app_constant/custom_widgets.dart';
 
 class AddExpenseScreen extends StatefulWidget {
   const AddExpenseScreen({super.key});
@@ -30,7 +31,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: UiColors.tealBg.withOpacity(0.6),
       appBar: AppBar(
         backgroundColor: UiColors.appbarbg.withOpacity(0.6),
         foregroundColor: UiColors.textBlack54,
@@ -40,15 +41,35 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
         ),
       ),
       body: SingleChildScrollView(
-        child: Column(
-          children: [
-            const SizedBox(height: 25),
-            ExpTextFields(context: context),
-            const SizedBox(height: 10),
-            expTypeSelctionBt(),
-            const SizedBox(height: 10),
-            const ActionButtons(),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.all(15),
+          child: Column(
+            children: [
+              CustomTextField(
+                  controller: context.read<ExpBloc>().titleController,
+                  hintText: 'Expense Name',
+                  suffixIcon: Icons.abc),
+              const SizedBox(height: 25),
+              CustomTextField(
+                  controller: context.read<ExpBloc>().discController,
+                  hintText: 'Add Description',
+                  suffixIcon: Icons.abc),
+              const SizedBox(height: 25),
+              CustomTextField(
+                  keyboardType: TextInputType.number,
+                  controller: context.read<ExpBloc>().amtController,
+                  hintText: 'Enter Amount',
+                  suffixIcon: CupertinoIcons.number),
+              const SizedBox(height: 10),
+              expTypeSelctionBt(),
+              const SizedBox(height: 10),
+              chooseExpenseBT(),
+              const SizedBox(height: 15),
+              selectDateBT(),
+              const SizedBox(height: 15),
+              saveBt()
+            ],
+          ),
         ),
       ),
     );
@@ -61,7 +82,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
         margin: const EdgeInsets.only(left: 30),
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-            color: UiColors.appbarbg.withOpacity(0.4),
+            color: UiColors.tealBg.withOpacity(0.9),
             borderRadius: BorderRadius.circular(12)),
         child: DropdownButton(
           isDense: true,
@@ -80,39 +101,8 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       ),
     );
   }
-}
 
-class ActionButtons extends StatelessWidget {
-  const ActionButtons({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return const Column(
-      children: [
-        ChooseExpenseBT(),
-        SizedBox(height: 15),
-        SelectDateBT(),
-        SizedBox(height: 15),
-        SaveBT()
-      ],
-    );
-  }
-}
-
-class SelectDateBT extends StatefulWidget {
-  const SelectDateBT({
-    super.key,
-  });
-
-  @override
-  State<SelectDateBT> createState() => _SelectDateBTState();
-}
-
-class _SelectDateBTState extends State<SelectDateBT> {
-  @override
-  Widget build(BuildContext context) {
+  selectDateBT() {
     return MyCustomButton(
         btName: DateFormat.yMMMEd().format(expDate),
         // btName: "${expDate.year} / ${expDate.month} / ${expDate.day}",
@@ -131,20 +121,8 @@ class _SelectDateBTState extends State<SelectDateBT> {
         bgColor: UiColors.white,
         foreColor: UiColors.black);
   }
-}
 
-class ChooseExpenseBT extends StatefulWidget {
-  const ChooseExpenseBT({
-    super.key,
-  });
-
-  @override
-  State<ChooseExpenseBT> createState() => _ChooseExpenseBTState();
-}
-
-class _ChooseExpenseBTState extends State<ChooseExpenseBT> {
-  @override
-  Widget build(BuildContext context) {
+  chooseExpenseBT() {
     return MyCustomButton(
       bgColor: UiColors.black,
       foreColor: UiColors.white,
@@ -231,62 +209,8 @@ class _ChooseExpenseBTState extends State<ChooseExpenseBT> {
       },
     );
   }
-}
 
-class ExpTextFields extends StatelessWidget {
-  const ExpTextFields({
-    super.key,
-    required this.context,
-  });
-
-  final BuildContext context;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 30),
-      child: Column(
-        children: [
-          CustomTextField(
-            controller: context.read<ExpBloc>().titleController,
-            hintText: 'Expense Name',
-            suffixIcon: const Icon(
-              Icons.abc,
-              size: 30,
-            ),
-          ),
-          const SizedBox(height: 25),
-          CustomTextField(
-            controller: context.read<ExpBloc>().discController,
-            hintText: 'Add Description',
-            suffixIcon: const Icon(
-              Icons.abc,
-              size: 30,
-            ),
-          ),
-          const SizedBox(height: 25),
-          CustomTextField(
-            keyboardType: TextInputType.number,
-            controller: context.read<ExpBloc>().amtController,
-            hintText: 'Enter Amount',
-            suffixIcon: const Icon(
-              Icons.dialpad_sharp,
-              size: 30,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class SaveBT extends StatelessWidget {
-  const SaveBT({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
+  saveBt() {
     return MyCustomButton(
         btName: 'Save',
         onTap: () {

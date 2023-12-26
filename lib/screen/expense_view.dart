@@ -1,3 +1,4 @@
+
 import 'package:expense_app/app_constant/colors_const.dart';
 import 'package:expense_app/app_constant/dummy_const.dart';
 import 'package:expense_app/bloc/exp_bloc.dart';
@@ -15,22 +16,8 @@ class ExpenseHome extends StatelessWidget {
     context.read<ExpBloc>().add(FetchExpenseEvent());
     return Scaffold(
         backgroundColor: UiColors.tealBg.withOpacity(0.6),
-        appBar: AppBar(
-          leadingWidth: 0,
-          leading: const Text(''),
-          backgroundColor: UiColors.tealBg.withOpacity(0.2),
-          title: const Text("Expense App"),
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            Navigator.push(context, MaterialPageRoute(
-              builder: (_) {
-                return const AddExpenseScreen();
-              },
-            ));
-          },
-          child: const Icon(Icons.add),
-        ),
+        appBar: expnseViewAppBar(),
+        floatingActionButton: addExpenseBt(context),
         body: BlocBuilder<ExpBloc, ExpState>(
           builder: (context, state) {
             if (state is ExpLoadingState) {
@@ -52,12 +39,34 @@ class ExpenseHome extends StatelessWidget {
         ));
   }
 
+  AppBar expnseViewAppBar() {
+    return AppBar(
+        leadingWidth: 0,
+        leading: const Text(''),
+        backgroundColor: UiColors.tealBg.withOpacity(0.2),
+        title: const Text("Expense App"),
+      );
+  }
+
+  FloatingActionButton addExpenseBt(BuildContext context) {
+    return FloatingActionButton(
+        onPressed: () {
+          Navigator.push(context, MaterialPageRoute(
+            builder: (_) {
+              return const AddExpenseScreen();
+            },
+          ));
+        },
+        child: const Icon(Icons.add),
+      );
+  }
+
   Padding landscapLay(BuildContext context, ExpLoadedState state) {
     return Padding(
       padding: const EdgeInsets.all(15),
       child: Row(
         children: [
-          Expanded(flex: 1, child: totalBalance()),
+          Expanded(flex: 1, child: totalBalance(fontSize: 20)),
           const SizedBox(width: 10),
           Expanded(
             flex: 3,
@@ -169,21 +178,21 @@ class ExpenseHome extends StatelessWidget {
     );
   }
 
-  Container totalBalance() {
+  Container totalBalance({double fontSize = 30}) {
     return Container(
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
           color: UiColors.tealBg.withOpacity(0.1),
           border: Border.all(color: UiColors.white, width: 2),
           borderRadius: BorderRadius.circular(12)),
-      child: const Column(
+      child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
             'Total Balance',
-            style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
           ),
-          Text(
+          const Text(
             "00.0",
             style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
           )

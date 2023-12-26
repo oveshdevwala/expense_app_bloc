@@ -1,9 +1,7 @@
-
 // ignore_for_file: must_be_immutable
 
 import 'package:expense_app/app_constant/colors_const.dart';
 import 'package:flutter/material.dart';
-
 
 class CustomTextField extends StatelessWidget {
   CustomTextField(
@@ -12,19 +10,21 @@ class CustomTextField extends StatelessWidget {
       required this.hintText,
       this.keyboardType = TextInputType.name,
       required this.suffixIcon});
-  Icon suffixIcon;
+  IconData suffixIcon;
   String hintText;
   TextInputType keyboardType;
   TextEditingController controller;
   @override
   Widget build(BuildContext context) {
     return TextField(
+      style: const TextStyle(fontWeight: FontWeight.bold),
       controller: controller,
       keyboardType: keyboardType,
       decoration: InputDecoration(
-        suffixIcon: suffixIcon,
+        suffixIcon: Icon(suffixIcon, size: 25, color: UiColors.black),
         hintText: hintText,
-        hintStyle: const TextStyle(color: UiColors.textBlack54),
+        hintStyle: const TextStyle(
+            color: UiColors.textBlack54, fontWeight: FontWeight.bold),
         border: textFieldBorder(),
         errorBorder: textFieldBorder(),
         enabledBorder: textFieldBorder(),
@@ -36,10 +36,9 @@ class CustomTextField extends StatelessWidget {
   }
 
   OutlineInputBorder textFieldBorder() => OutlineInputBorder(
-      borderSide: const BorderSide(color: UiColors.textBlack45),
+      borderSide: const BorderSide(color: UiColors.white),
       borderRadius: BorderRadius.circular(20));
 }
-
 
 class MyCustomButton extends StatelessWidget {
   MyCustomButton(
