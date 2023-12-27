@@ -31,7 +31,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: UiColors.tealBg.withOpacity(0.6),
+      backgroundColor: UiColors.appbarbg.withOpacity(0.7),
       appBar: AppBar(
         backgroundColor: UiColors.appbarbg.withOpacity(0.6),
         foregroundColor: UiColors.textBlack54,
