@@ -1,5 +1,3 @@
-// ignore_for_file: must_be_immutable
-
 import 'package:expense_app/app_constant/colors_const.dart';
 import 'package:expense_app/app_constant/dummy_const.dart';
 import 'package:expense_app/bloc/exp_bloc.dart';
@@ -13,8 +11,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class ExpenseHome extends StatelessWidget {
   ExpenseHome({super.key});
   num tBalance = 00.0;
+
   @override
   Widget build(BuildContext context) {
+    print('Build Called');
     var mq = MediaQuery.of(context);
     context.read<ExpBloc>().add(FetchExpenseEvent());
     return Scaffold(
@@ -31,7 +31,6 @@ class ExpenseHome extends StatelessWidget {
             }
             if (state is ExpLoadedState) {
               if (state.data.isNotEmpty) {
-                // tBalance = state.data.last.modelExpBalance;
                 var lastExpId = -1;
                 for (ExpenseModel exp in state.data) {
                   if (exp.modelExpId > lastExpId) {
@@ -39,17 +38,16 @@ class ExpenseHome extends StatelessWidget {
                   }
                 }
                 var lastExpense = state.data
-                    .where((element) => element.modelExpId == lastExpId)
-                    .toList()[0]
-                    .modelExpBalance;
-                tBalance = lastExpense;
+                    .firstWhere((element) => element.modelExpId == lastExpId);
+                tBalance = lastExpense.modelExpBalance;
 
                 context
                     .read<ExpBloc>()
                     .add(TotalExpAmountEvent(allExpenses: state.data));
+
                 return mq.orientation == Orientation.landscape
-                    ? landscapLay(context, state)
-                    : portraitLay(context, state);
+                    ? landscapLay(context, state, lastExpense.modelExpType)
+                    : portraitLay(context, state, lastExpense.modelExpType);
               } else {
                 return const Center(child: Text('No Expense Found'));
               }
@@ -83,7 +81,8 @@ class ExpenseHome extends StatelessWidget {
     );
   }
 
-  Padding landscapLay(BuildContext context, ExpLoadedState state) {
+  Padding landscapLay(
+      BuildContext context, ExpLoadedState state, var lastExpense) {
     return Padding(
       padding: const EdgeInsets.all(15),
       child: Row(
@@ -96,7 +95,7 @@ class ExpenseHome extends StatelessWidget {
           Expanded(
             flex: 3,
             child: SingleChildScrollView(
-              child: expenseListView(context),
+              child: expenseListView(context, lastExpense),
             ),
           )
         ],
@@ -105,21 +104,21 @@ class ExpenseHome extends StatelessWidget {
   }
 
   SingleChildScrollView portraitLay(
-      BuildContext context, ExpLoadedState state) {
+      BuildContext context, ExpLoadedState state, var lastExpense) {
     return SingleChildScrollView(
       child: Column(
         children: [
           const SizedBox(height: 20),
           totalBalance(state: state, context: context),
           const SizedBox(height: 10),
-          expenseListView(context),
+          expenseListView(context, lastExpense),
           const SizedBox(height: 70)
         ],
       ),
     );
   }
 
-  ListView expenseListView(BuildContext context) {
+  ListView expenseListView(BuildContext context, var lastExpense) {
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -156,7 +155,7 @@ class ExpenseHome extends StatelessWidget {
                     onLongPress: () {
                       context.read<ExpBloc>().add(DeleteExpenseEvent(
                           expId: myExpData[mindex].modelExpId));
-                      if (myExpData.last.modelExpType == 0) {
+                      if (lastExpense == 0) {
                         tBalance += myExpData[mindex].modelExpAmount;
                       } else {
                         tBalance -= myExpData[mindex].modelExpAmount;
