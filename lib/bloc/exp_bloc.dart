@@ -24,30 +24,33 @@ class ExpBloc extends Bloc<ExpEvent, ExpState> {
   }
   FutureOr<void> addExpenseEvent(
       AddExpenseEvent event, Emitter<ExpState> emit) async {
-    emit(ExpLoadingState());
-    var mBalance = event.tBalance;
-    if (selectedExpType == 'Debit') {
-      mBalance -= int.parse(amtController.text.toString());
-    } else {
-      mBalance += int.parse(amtController.text.toString());
-    }
+    if (amtController.text.isNotEmpty &&
+        titleController.text.isNotEmpty &&
+        discController.text.isNotEmpty) {
+      emit(ExpLoadingState());
+      var mBalance = event.tBalance;
+      if (selectedExpType == 'Debit') {
+        mBalance -= int.parse(amtController.text.toString());
+      } else {
+        mBalance += int.parse(amtController.text.toString());
+      }
 
-    ExpenseModel mymodel = ExpenseModel(
-        modelExpId: 0,
-        modelExpAmount: double.parse(amtController.text.toString()),
-        modelExpBalance: mBalance,
-        modelExpCatagoryID:
-            selectedCategoryIndex != -1 ? selectedCategoryIndex : 0,
-        modelExpDescription: discController.text.toString(),
-        modelExpTimeStamp: expDate.millisecondsSinceEpoch.toString(),
-        modelExpTitle: titleController.text.toString(),
-        modelExpType: selectedExpType == 'Debit' ? 0 : 1);
-
-    var check = await db.addExpense(mymodel);
-    if (check) {
-      emit(ExpLoadedState(data: await db.fetchExpens()));
-    } else {
-      emit(ExpErrorstate(errorMsg: 'Expense Not Added'));
+      ExpenseModel mymodel = ExpenseModel(
+          modelExpId: 0,
+          modelExpAmount: double.parse(amtController.text.toString()),
+          modelExpBalance: mBalance,
+          modelExpCatagoryID:
+              selectedCategoryIndex != -1 ? selectedCategoryIndex : 0,
+          modelExpDescription: discController.text.toString(),
+          modelExpTimeStamp: expDate.millisecondsSinceEpoch.toString(),
+          modelExpTitle: titleController.text.toString(),
+          modelExpType: selectedExpType == 'Debit' ? 0 : 1);
+      var check = await db.addExpense(mymodel);
+      if (check) {
+        emit(ExpLoadedState(data: await db.fetchExpens()));
+      } else {
+        emit(ExpErrorstate(errorMsg: 'Expense Not Added'));
+      }
     }
   }
 
@@ -110,7 +113,6 @@ class ExpBloc extends Bloc<ExpEvent, ExpState> {
       for (ExpenseModel eachExp in event.allExpenses) {
         var mDate = DateTimeUtils.getFormatedMilliS(
             int.parse(eachExp.modelExpTimeStamp));
-
         if (date == mDate) {
           eachDateExp.add(eachExp);
           if (eachExp.modelExpType == 0) {
@@ -129,11 +131,17 @@ class ExpBloc extends Bloc<ExpEvent, ExpState> {
         date = 'Yesterday';
       }
 
-      dateWiseExpenses.add(DateWiseExpenseModel(
+       
+      dateWiseExpenses.add(
+        
+        DateWiseExpenseModel(
           data: date,
           totalAmount: totalAmt.toString(),
           allTransactions: eachDateExp));
     }
     emit(ExpLoadedState(data: event.allExpenses));
+
+
+
   }
 }

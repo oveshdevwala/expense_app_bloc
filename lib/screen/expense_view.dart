@@ -1,3 +1,5 @@
+// ignore_for_file: must_be_immutable
+
 import 'package:expense_app/app_constant/colors_const.dart';
 import 'package:expense_app/app_constant/dummy_const.dart';
 import 'package:expense_app/bloc/exp_bloc.dart';
@@ -14,7 +16,6 @@ class ExpenseHome extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('Build Called');
     var mq = MediaQuery.of(context);
     context.read<ExpBloc>().add(FetchExpenseEvent());
     return Scaffold(
