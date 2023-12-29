@@ -10,8 +10,7 @@ import 'package:expense_app/screen/add_expense.dart';
 import 'package:flutter/material.dart';
 
 class ExpBloc extends Bloc<ExpEvent, ExpState> {
-  
-List<DateWiseExpenseModel> dateWiseExpenses = [];
+  List<DateWiseExpenseModel> dateWiseExpenses = [];
   DataBaseHelper db;
   var amtController = TextEditingController();
   var titleController = TextEditingController();
@@ -26,10 +25,17 @@ List<DateWiseExpenseModel> dateWiseExpenses = [];
   FutureOr<void> addExpenseEvent(
       AddExpenseEvent event, Emitter<ExpState> emit) async {
     emit(ExpLoadingState());
+    var mBalance = event.tBalance;
+    if (selectedExpType == 'Debit') {
+      mBalance -= int.parse(amtController.text.toString());
+    } else {
+      mBalance += int.parse(amtController.text.toString());
+    }
+
     ExpenseModel mymodel = ExpenseModel(
         modelExpId: 0,
         modelExpAmount: double.parse(amtController.text.toString()),
-        modelExpBalance: 2,
+        modelExpBalance: mBalance,
         modelExpCatagoryID:
             selectedCategoryIndex != -1 ? selectedCategoryIndex : 0,
         modelExpDescription: discController.text.toString(),
@@ -76,6 +82,7 @@ List<DateWiseExpenseModel> dateWiseExpenses = [];
   FutureOr<void> deleteExpenseEvent(
       DeleteExpenseEvent event, Emitter<ExpState> emit) async {
     emit(ExpLoadingState());
+
     var check = await db.deleteExp(event.expId);
     if (check) {
       emit(ExpLoadedState(data: await db.fetchExpens()));

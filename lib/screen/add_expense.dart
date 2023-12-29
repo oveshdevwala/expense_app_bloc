@@ -13,8 +13,8 @@ import 'package:intl/intl.dart';
 import '../app_constant/custom_widgets.dart';
 
 class AddExpenseScreen extends StatefulWidget {
-  const AddExpenseScreen({super.key});
-
+  AddExpenseScreen({super.key, required this.tBalance});
+  num tBalance;
   @override
   State<AddExpenseScreen> createState() => _AddExpenseScreenState();
 }
@@ -216,10 +216,13 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
         onTap: () {
           Navigator.pushReplacement(context, MaterialPageRoute(
             builder: (context) {
-              return const ExpenseHome();
+              return ExpenseHome();
             },
           ));
-          context.read<ExpBloc>().add(AddExpenseEvent());
+          
+          context
+              .read<ExpBloc>()
+              .add(AddExpenseEvent(tBalance: widget.tBalance));
         },
         bgColor: UiColors.black,
         foreColor: UiColors.white);

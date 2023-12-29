@@ -1,15 +1,18 @@
+// ignore_for_file: must_be_immutable
 
 import 'package:expense_app/app_constant/colors_const.dart';
 import 'package:expense_app/app_constant/dummy_const.dart';
 import 'package:expense_app/bloc/exp_bloc.dart';
 import 'package:expense_app/bloc/exp_event.dart';
 import 'package:expense_app/bloc/exp_state.dart';
+import 'package:expense_app/models/expense_model.dart';
 import 'package:expense_app/screen/add_expense.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ExpenseHome extends StatelessWidget {
-  const ExpenseHome({super.key});
+  ExpenseHome({super.key});
+  num tBalance = 00.0;
   @override
   Widget build(BuildContext context) {
     var mq = MediaQuery.of(context);
@@ -27,12 +30,29 @@ class ExpenseHome extends StatelessWidget {
               return Center(child: Text(state.errorMsg));
             }
             if (state is ExpLoadedState) {
-              context
-                  .read<ExpBloc>()
-                  .add(TotalExpAmountEvent(allExpenses: state.data));
-              return mq.orientation == Orientation.landscape
-                  ? landscapLay(context, state)
-                  : portraitLay(context, state);
+              if (state.data.isNotEmpty) {
+                // tBalance = state.data.last.modelExpBalance;
+                var lastExpId = -1;
+                for (ExpenseModel exp in state.data) {
+                  if (exp.modelExpId > lastExpId) {
+                    lastExpId = exp.modelExpId;
+                  }
+                }
+                var lastExpense = state.data
+                    .where((element) => element.modelExpId == lastExpId)
+                    .toList()[0]
+                    .modelExpBalance;
+                tBalance = lastExpense;
+
+                context
+                    .read<ExpBloc>()
+                    .add(TotalExpAmountEvent(allExpenses: state.data));
+                return mq.orientation == Orientation.landscape
+                    ? landscapLay(context, state)
+                    : portraitLay(context, state);
+              } else {
+                return const Center(child: Text('No Expense Found'));
+              }
             }
             return const SizedBox();
           },
@@ -41,24 +61,26 @@ class ExpenseHome extends StatelessWidget {
 
   AppBar expnseViewAppBar() {
     return AppBar(
-        leadingWidth: 0,
-        leading: const Text(''),
-        backgroundColor: UiColors.tealBg.withOpacity(0.2),
-        title: const Text("Expense App"),
-      );
+      leadingWidth: 0,
+      leading: const Text(''),
+      backgroundColor: UiColors.tealBg.withOpacity(0.2),
+      title: const Text("Expense App"),
+    );
   }
 
   FloatingActionButton addExpenseBt(BuildContext context) {
     return FloatingActionButton(
-        onPressed: () {
-          Navigator.push(context, MaterialPageRoute(
-            builder: (_) {
-              return const AddExpenseScreen();
-            },
-          ));
-        },
-        child: const Icon(Icons.add),
-      );
+      onPressed: () {
+        Navigator.push(context, MaterialPageRoute(
+          builder: (_) {
+            return AddExpenseScreen(
+              tBalance: tBalance,
+            );
+          },
+        ));
+      },
+      child: const Icon(Icons.add),
+    );
   }
 
   Padding landscapLay(BuildContext context, ExpLoadedState state) {
@@ -66,7 +88,10 @@ class ExpenseHome extends StatelessWidget {
       padding: const EdgeInsets.all(15),
       child: Row(
         children: [
-          Expanded(flex: 1, child: totalBalance(fontSize: 20)),
+          Expanded(
+              flex: 1,
+              child:
+                  totalBalance(fontSize: 20, state: state, context: context)),
           const SizedBox(width: 10),
           Expanded(
             flex: 3,
@@ -85,7 +110,7 @@ class ExpenseHome extends StatelessWidget {
       child: Column(
         children: [
           const SizedBox(height: 20),
-          totalBalance(),
+          totalBalance(state: state, context: context),
           const SizedBox(height: 10),
           expenseListView(context),
           const SizedBox(height: 70)
@@ -131,6 +156,11 @@ class ExpenseHome extends StatelessWidget {
                     onLongPress: () {
                       context.read<ExpBloc>().add(DeleteExpenseEvent(
                           expId: myExpData[mindex].modelExpId));
+                      if (myExpData.last.modelExpType == 0) {
+                        tBalance += myExpData[mindex].modelExpAmount;
+                      } else {
+                        tBalance -= myExpData[mindex].modelExpAmount;
+                      }
                     },
                     child: Container(
                       decoration: BoxDecoration(
@@ -161,12 +191,23 @@ class ExpenseHome extends StatelessWidget {
                               color: UiColors.textBlack54,
                               fontWeight: FontWeight.w600),
                         ),
-                        trailing: Text(
-                          myExpData[mindex].modelExpAmount.toString(),
-                          style: const TextStyle(
-                              color: UiColors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16),
+                        trailing: Column(
+                          children: [
+                            Text(
+                              myExpData[mindex].modelExpAmount.toString(),
+                              style: const TextStyle(
+                                  color: UiColors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16),
+                            ),
+                            Text(
+                              myExpData[mindex].modelExpBalance.toString(),
+                              style: const TextStyle(
+                                  color: UiColors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -178,7 +219,10 @@ class ExpenseHome extends StatelessWidget {
     );
   }
 
-  Container totalBalance({double fontSize = 30}) {
+  Container totalBalance(
+      {double fontSize = 30,
+      required ExpLoadedState state,
+      required BuildContext context}) {
     return Container(
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
@@ -192,9 +236,9 @@ class ExpenseHome extends StatelessWidget {
             'Total Balance',
             style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
           ),
-          const Text(
-            "00.0",
-            style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
+          Text(
+            tBalance.toString(),
+            style: const TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
           )
         ],
       ),

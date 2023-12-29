@@ -81,7 +81,7 @@ CREATE TABLE $expTable(
 
   Future<List<ExpenseModel>> fetchExpens() async {
     var db = await getDb();
-    var data = await db.query(expTable, orderBy: '$colExpTimeStamp DESC');
+    var data = await db.query(expTable, orderBy:'$colExpTimeStamp DESC');
     List<ExpenseModel> arrddata = [];
 
     for (Map<String, dynamic> eachExp in data) {
@@ -102,11 +102,12 @@ CREATE TABLE $expTable(
     var db = await getDb();
     var rowEffected = await db
         .delete(expTable, where: "$colExpenseId = ?", whereArgs: ['$id']);
+
     return rowEffected > 0;
   }
 }
 
-
+// reversed
 // *****Database****
    //variables*
       // table*
