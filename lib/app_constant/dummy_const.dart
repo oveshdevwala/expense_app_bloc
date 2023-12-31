@@ -4,6 +4,8 @@ import '../models/category_model.dart';
 
 class ExpCategorys {
   static final List<CategoryModel> mCategory = [
+    CategoryModel(
+        catTitle: 'Groceries', catImgPath: ImgPath.groceriesImg, catId: 0),
     CategoryModel(catTitle: 'Gym', catImgPath: ImgPath.gymImg, catId: 1),
     CategoryModel(catTitle: 'Food', catImgPath: ImgPath.foodImg, catId: 2),
     CategoryModel(
@@ -11,13 +13,11 @@ class ExpCategorys {
     CategoryModel(catTitle: 'Study', catImgPath: ImgPath.studyImg, catId: 4),
     CategoryModel(catTitle: 'Travel', catImgPath: ImgPath.travelImg, catId: 5),
     CategoryModel(catTitle: 'Movies', catImgPath: ImgPath.moviesImg, catId: 6),
-    CategoryModel(catTitle: 'Rent', catImgPath: ImgPath.rentImg, catId: 8),
-    CategoryModel(catTitle: 'Coffee', catImgPath: ImgPath.coffeeImg, catId: 9),
-    CategoryModel(catTitle: 'Petrol', catImgPath: ImgPath.petrolImg, catId: 10),
-    CategoryModel(catTitle: 'Snacks', catImgPath: ImgPath.snacksImg, catId: 11),
+    CategoryModel(catTitle: 'Rent', catImgPath: ImgPath.rentImg, catId: 7),
+    CategoryModel(catTitle: 'Coffee', catImgPath: ImgPath.coffeeImg, catId: 8),
+    CategoryModel(catTitle: 'Petrol', catImgPath: ImgPath.petrolImg, catId: 9),
+    CategoryModel(catTitle: 'Snacks', catImgPath: ImgPath.snacksImg, catId: 10),
     CategoryModel(
-        catTitle: 'Medicine', catImgPath: ImgPath.medicineImg, catId: 12),
-    CategoryModel(
-        catTitle: 'Groceries', catImgPath: ImgPath.groceriesImg, catId: 7),
+        catTitle: 'Medicine', catImgPath: ImgPath.medicineImg, catId: 11),
   ];
 }

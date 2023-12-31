@@ -3,8 +3,10 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:expense_app/Database/database_helper.dart';
 import 'package:expense_app/app_constant/datetime_utile.dart';
+import 'package:expense_app/app_constant/dummy_const.dart';
 import 'package:expense_app/bloc/exp_event.dart';
 import 'package:expense_app/bloc/exp_state.dart';
+import 'package:expense_app/models/category_model.dart';
 import 'package:expense_app/models/expense_model.dart';
 import 'package:expense_app/models/filter_models.dart';
 import 'package:expense_app/screen/add_expense.dart';
@@ -14,6 +16,7 @@ class ExpBloc extends Bloc<ExpEvent, ExpState> {
   List<DateWiseExpenseModel> dateWiseExpenses = [];
   List<MonthWiseExpenseModel> monthWiseExpense = [];
   List<YearWiseExpenseModel> yearWiseExpense = [];
+  List<CategoryWiseExpenseModel> categoryWiseExpense = [];
   DataBaseHelper db;
   var amtController = TextEditingController();
   var titleController = TextEditingController();
@@ -26,7 +29,7 @@ class ExpBloc extends Bloc<ExpEvent, ExpState> {
     on<FilterDayWiseExpenseEvent>(filterDayWiseExpenseEvent);
     on<FilterMonthWiseExpenseEvent>(filterMonthWiseExpenseEvent);
     on<FilterYearWiseExpenseEvent>(filterYearWiseExpenseEvent);
-    // on<FilterCategoryWiseExpenseEvent>(filterCategoryWiseExpenseEvent);
+    on<FilterCategoryWiseExpenseEvent>(filterCategoryWiseExpenseEvent);
   }
   FutureOr<void> addExpenseEvent(
       AddExpenseEvent event, Emitter<ExpState> emit) async {
@@ -219,8 +222,7 @@ class ExpBloc extends Bloc<ExpEvent, ExpState> {
         }
       }
       var thisYear = DateTime.now();
-      var lastYear = DateTime(
-          DateTime.now().year - 1);
+      var lastYear = DateTime(DateTime.now().year - 1);
       if (year == DateTimeUtils.getFormatedYearFromDateTime(thisYear)) {
         year = 'This Year';
       } else if (year == DateTimeUtils.getFormatedYearFromDateTime(lastYear)) {
@@ -236,5 +238,31 @@ class ExpBloc extends Bloc<ExpEvent, ExpState> {
   }
 
   FutureOr<void> filterCategoryWiseExpenseEvent(
-      FilterCategoryWiseExpenseEvent event, Emitter<ExpState> emit) {}
+      FilterCategoryWiseExpenseEvent event, Emitter<ExpState> emit) {
+    categoryWiseExpense.clear();
+    for (CategoryModel eachCate in ExpCategorys.mCategory) {
+      var totalOfCategory = 00.0;
+      var cateName = eachCate.catTitle;
+      List<ExpenseModel> cateTransactions = [];
+      for (ExpenseModel eachExp in event.allExpenses) {
+        if (eachExp.modelExpCatagoryID == eachCate.catId) {
+          cateTransactions.add(eachExp);
+
+          if (eachExp.modelExpType == 0) {
+            //Debit
+            totalOfCategory -= eachExp.modelExpAmount;
+          } else {
+            //credit
+            totalOfCategory += eachExp.modelExpAmount;
+          }
+        }
+      }
+      if (cateTransactions.isNotEmpty) {
+        categoryWiseExpense.add(CategoryWiseExpenseModel(
+            category: cateName,
+            totalAmount: totalOfCategory.toString(),
+            allTransactions: cateTransactions));
+      }
+    }
+  }
 }

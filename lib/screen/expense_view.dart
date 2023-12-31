@@ -4,11 +4,9 @@ import 'package:expense_app/bloc/exp_bloc.dart';
 import 'package:expense_app/bloc/exp_event.dart';
 import 'package:expense_app/bloc/exp_state.dart';
 import 'package:expense_app/models/expense_model.dart';
-import 'package:expense_app/models/filter_models.dart';
 import 'package:expense_app/screen/add_expense.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class ExpenseHome extends StatefulWidget {
   const ExpenseHome({super.key});
@@ -20,24 +18,15 @@ class ExpenseHome extends StatefulWidget {
 class _ExpenseHomeState extends State<ExpenseHome> {
   num tBalance = 00.0;
 
-  var selectFilter = ['Day', 'Month', 'Year'];
+  var selectFilter = ['Day', 'Month', 'Year', 'Category'];
 
   var selectedFilter = 'Day';
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   getSelectedFillter();
-  // }
-
-  // Future<String> getSelectedFillter() async {
-  //   var prefs = await SharedPreferences.getInstance();
-  //   return prefs.getString('selectedFilter')!;
-  // }
 
   @override
   Widget build(BuildContext context) {
     var mq = MediaQuery.of(context);
     context.read<ExpBloc>().add(FetchExpenseEvent());
+    print('Build Function Called');
     return Scaffold(
         backgroundColor: UiColors.tealBg.withOpacity(0.6),
         appBar: expnseViewAppBar(),
@@ -63,7 +52,7 @@ class _ExpenseHomeState extends State<ExpenseHome> {
                     .firstWhere((element) => element.modelExpId == lastExpId);
                 tBalance = lastExpense.modelExpBalance;
                 var blocpath = context.read<ExpBloc>();
-              //Show Data According to Selcted Filter
+                //Show Data According to Selcted Filter
                 selectedFilterShow() {
                   if (selectedFilter == 'Day') {
                     return blocpath.add(
@@ -74,6 +63,9 @@ class _ExpenseHomeState extends State<ExpenseHome> {
                   } else if (selectedFilter == 'Year') {
                     return blocpath.add(
                         FilterYearWiseExpenseEvent(allExpenses: state.data));
+                  } else if (selectedFilter == 'Category') {
+                    return blocpath.add(FilterCategoryWiseExpenseEvent(
+                        allExpenses: state.data));
                   }
                 }
 
@@ -95,8 +87,10 @@ class _ExpenseHomeState extends State<ExpenseHome> {
       return dayWiseExpenseListView(context, lastExpense);
     } else if (selectedFilter == 'Month') {
       return monthWiseExpenseListView(context, lastExpense);
-    } else {
+    } else if (selectedFilter == 'Year') {
       return yearWiseExpenseListView(context, lastExpense);
+    } else if (selectedFilter == 'Category') {
+      return categoryWiseExpenseListView(context, lastExpense);
     }
   }
 
@@ -228,6 +222,40 @@ class _ExpenseHomeState extends State<ExpenseHome> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(myData.data,
+                          style: const TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.w600)),
+                      Text(myData.totalAmount,
+                          style: const TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.w600))
+                    ])),
+            allTransacrionsListView(myData, context, lastExpense)
+          ],
+        );
+      },
+    );
+  }
+
+  ListView categoryWiseExpenseListView(BuildContext context, var lastExpense) {
+    var blocpath = context.read<ExpBloc>();
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: blocpath.categoryWiseExpense.length,
+      itemBuilder: (_, index) {
+        var myData = blocpath.categoryWiseExpense[index];
+
+        return Column(
+          children: [
+            Container(
+                margin: const EdgeInsets.symmetric(horizontal: 8),
+                decoration: BoxDecoration(
+                    color: UiColors.tealBg.withOpacity(0.6),
+                    borderRadius: BorderRadius.circular(12)),
+                padding: const EdgeInsets.all(12),
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(myData.category,
                           style: const TextStyle(
                               fontSize: 16, fontWeight: FontWeight.w600)),
                       Text(myData.totalAmount,

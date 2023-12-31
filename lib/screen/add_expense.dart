@@ -22,6 +22,7 @@ class AddExpenseScreen extends StatefulWidget {
 DateTime expDate = DateTime.now();
 String? selectedCategory;
 String? selectedCategoryImg;
+String? selectedCategoryTitle;
 int selectedCategoryIndex = -1;
 
 var expTypes = ['Debit', 'Credit'];
@@ -131,14 +132,13 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
           ? Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(ExpCategorys.mCategory[selectedCategoryIndex].catTitle),
+                Text(selectedCategoryTitle.toString()),
                 const SizedBox(width: 10),
                 CircleAvatar(
                   backgroundColor: UiColors.appbarbg,
                   radius: 15,
                   child: Image(
-                    image: AssetImage(ExpCategorys
-                        .mCategory[selectedCategoryIndex].catImgPath),
+                    image: AssetImage(selectedCategoryImg.toString()),
                     height: 20,
                   ),
                 ),
@@ -165,31 +165,32 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 4, childAspectRatio: 0.8),
-                    itemBuilder: (context, index) {
+                    itemBuilder: (_, index) {
                       return Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             InkWell(
-                              borderRadius: BorderRadius.circular(100),
-                              onTap: () {
-                                Navigator.pop(context);
-                                selectedCategoryIndex = index;
-                                selectedCategoryImg =
-                                    ExpCategorys.mCategory[index].catImgPath;
-                                setState(() {});
-                              },
-                              child: CircleAvatar(
-                                radius: 35,
-                                backgroundColor:
-                                    UiColors.appbarbg.withOpacity(0.3),
-                                child: Image.asset(
-                                  ExpCategorys.mCategory[index].catImgPath,
-                                  height: 40,
-                                ),
-                              ),
-                            ),
+                                borderRadius: BorderRadius.circular(100),
+                                onTap: () {
+                                  Navigator.pop(context);
+                                  selectedCategoryIndex =ExpCategorys.mCategory[index].catId;
+
+                                  selectedCategoryImg =
+                                      ExpCategorys.mCategory[index].catImgPath;
+                                  selectedCategoryTitle =
+                                      ExpCategorys.mCategory[index].catTitle;
+                                  setState(() {});
+                                },
+                                child: CircleAvatar(
+                                    radius: 35,
+                                    backgroundColor:
+                                        UiColors.appbarbg.withOpacity(0.3),
+                                    child: Image.asset(
+                                        ExpCategorys
+                                            .mCategory[index].catImgPath,
+                                        height: 40))),
                             const SizedBox(height: 5),
                             Text(
                               ExpCategorys.mCategory[index].catTitle,
@@ -216,10 +217,10 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
         onTap: () {
           Navigator.pushReplacement(context, MaterialPageRoute(
             builder: (context) {
-              return ExpenseHome();
+              return const ExpenseHome();
             },
           ));
-          
+
           context
               .read<ExpBloc>()
               .add(AddExpenseEvent(tBalance: widget.tBalance));
