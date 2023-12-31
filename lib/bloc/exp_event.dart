@@ -24,15 +24,43 @@ class DeleteExpenseEvent extends ExpEvent {
   DeleteExpenseEvent({required this.expId});
 }
 
+// class TotalExpAmountEvent extends ExpEvent {
+//   List<ExpenseModel> allExpenses;
+//   TotalExpAmountEvent({required this.allExpenses});
+// }
 
-class TotalExpAmountEvent extends ExpEvent {
+// class TotalBalanceAmountEvent extends ExpEvent {
+//   num tBalance;
+//   TotalBalanceAmountEvent({
+//     required this.tBalance,
+//   });
+// }
+
+class FilterDayWiseExpenseEvent extends ExpEvent {
   List<ExpenseModel> allExpenses;
-  TotalExpAmountEvent({required this.allExpenses});
+  FilterDayWiseExpenseEvent({
+    required this.allExpenses,
+  });
+  
 }
 
-class TotalBalanceAmountEvent extends ExpEvent {
-  num tBalance;
-  TotalBalanceAmountEvent({
-    required this.tBalance,
+class FilterMonthWiseExpenseEvent extends ExpEvent {
+  List<ExpenseModel> allExpenses;
+  FilterMonthWiseExpenseEvent({
+    required this.allExpenses,
+  });
+}
+
+class FilterYearWiseExpenseEvent extends ExpEvent {
+  List<ExpenseModel> allExpenses;
+  FilterYearWiseExpenseEvent({
+    required this.allExpenses,
+  });
+}
+
+class FilterCategoryWiseExpenseEvent extends ExpEvent {
+  List<ExpenseModel> allExpenses;
+  FilterCategoryWiseExpenseEvent({
+    required this.allExpenses,
   });
 }

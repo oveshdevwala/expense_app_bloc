@@ -6,11 +6,14 @@ import 'package:expense_app/app_constant/datetime_utile.dart';
 import 'package:expense_app/bloc/exp_event.dart';
 import 'package:expense_app/bloc/exp_state.dart';
 import 'package:expense_app/models/expense_model.dart';
+import 'package:expense_app/models/filter_models.dart';
 import 'package:expense_app/screen/add_expense.dart';
 import 'package:flutter/material.dart';
 
 class ExpBloc extends Bloc<ExpEvent, ExpState> {
   List<DateWiseExpenseModel> dateWiseExpenses = [];
+  List<MonthWiseExpenseModel> monthWiseExpense = [];
+  List<YearWiseExpenseModel> yearWiseExpense = [];
   DataBaseHelper db;
   var amtController = TextEditingController();
   var titleController = TextEditingController();
@@ -20,7 +23,10 @@ class ExpBloc extends Bloc<ExpEvent, ExpState> {
     on<FetchExpenseEvent>(fetchExpenseEvent);
     on<UpdateExpenseEvent>(updateExpenseEvent);
     on<DeleteExpenseEvent>(deleteExpenseEvent);
-    on<TotalExpAmountEvent>(totalExpAmountEvent);
+    on<FilterDayWiseExpenseEvent>(filterDayWiseExpenseEvent);
+    on<FilterMonthWiseExpenseEvent>(filterMonthWiseExpenseEvent);
+    on<FilterYearWiseExpenseEvent>(filterYearWiseExpenseEvent);
+    // on<FilterCategoryWiseExpenseEvent>(filterCategoryWiseExpenseEvent);
   }
   FutureOr<void> addExpenseEvent(
       AddExpenseEvent event, Emitter<ExpState> emit) async {
@@ -94,34 +100,35 @@ class ExpBloc extends Bloc<ExpEvent, ExpState> {
     }
   }
 
-  FutureOr<void> totalExpAmountEvent(
-      TotalExpAmountEvent event, Emitter<ExpState> emit) {
+  FutureOr<void> filterDayWiseExpenseEvent(
+      FilterDayWiseExpenseEvent event, Emitter<ExpState> emit) {
     dateWiseExpenses.clear();
     var listUniqueDates = [];
-
+//Find and add unique Date
     for (ExpenseModel eachExp in event.allExpenses) {
-      var mDate =
-          DateTimeUtils.getFormatedMilliS(int.parse(eachExp.modelExpTimeStamp));
+      var mDate = DateTimeUtils.getFormatedDateMilliS(
+          int.parse(eachExp.modelExpTimeStamp));
       if (!listUniqueDates.contains(mDate)) {
         listUniqueDates.add(mDate);
       }
     }
     for (String date in listUniqueDates) {
       List<ExpenseModel> eachDateExp = [];
-      var totalAmt = 0.0;
+      var totalofDayAmt = 0.0;
 
       for (ExpenseModel eachExp in event.allExpenses) {
-        var mDate = DateTimeUtils.getFormatedMilliS(
+        var mDate = DateTimeUtils.getFormatedDateMilliS(
             int.parse(eachExp.modelExpTimeStamp));
         if (date == mDate) {
           eachDateExp.add(eachExp);
           if (eachExp.modelExpType == 0) {
-            totalAmt -= eachExp.modelExpAmount;
+            totalofDayAmt -= eachExp.modelExpAmount;
           } else {
-            totalAmt += eachExp.modelExpAmount;
+            totalofDayAmt += eachExp.modelExpAmount;
           }
         }
       }
+
       var today = DateTime.now();
       var yesterday = DateTime.now().subtract(const Duration(days: 1));
       if (date == DateTimeUtils.getFormateDateTime(today)) {
@@ -131,17 +138,103 @@ class ExpBloc extends Bloc<ExpEvent, ExpState> {
         date = 'Yesterday';
       }
 
-       
-      dateWiseExpenses.add(
-        
-        DateWiseExpenseModel(
+      dateWiseExpenses.add(DateWiseExpenseModel(
           data: date,
-          totalAmount: totalAmt.toString(),
+          totalAmount: totalofDayAmt.toString(),
           allTransactions: eachDateExp));
     }
     emit(ExpLoadedState(data: event.allExpenses));
-
-
-
   }
+
+  FutureOr<void> filterMonthWiseExpenseEvent(
+      FilterMonthWiseExpenseEvent event, Emitter<ExpState> emit) async {
+    monthWiseExpense.clear();
+    var listUniqueMonth = [];
+    //Find and add unique Months
+    for (ExpenseModel eachExp in event.allExpenses) {
+      var mMonth = DateTimeUtils.getFormatedMonthFromMilli(
+          int.parse(eachExp.modelExpTimeStamp));
+      if (!listUniqueMonth.contains(mMonth)) {
+        listUniqueMonth.add(mMonth);
+      }
+    }
+
+    for (String month in listUniqueMonth) {
+      List<ExpenseModel> eachMonthExpense = [];
+      var totalOfMonth = 00.0;
+      for (ExpenseModel eachExp in event.allExpenses) {
+        var mMonth = DateTimeUtils.getFormatedMonthFromMilli(
+            int.parse(eachExp.modelExpTimeStamp));
+
+        if (month == mMonth) {
+          eachMonthExpense.add(eachExp);
+          if (eachExp.modelExpType == 0) {
+            totalOfMonth -= eachExp.modelExpAmount;
+          } else {
+            totalOfMonth += eachExp.modelExpAmount;
+          }
+        }
+      }
+      var thisMonth = DateTime.now();
+      var lastMonth = DateTime(DateTime.now().year, DateTime.now().month - 1);
+      if (month == DateTimeUtils.getFormatedMonthFromDateTime(thisMonth)) {
+        month = 'This Month';
+      } else if (month ==
+          DateTimeUtils.getFormatedMonthFromDateTime(lastMonth)) {
+        month = 'Last Month';
+      }
+      monthWiseExpense.add(MonthWiseExpenseModel(
+          data: month,
+          totalAmount: totalOfMonth.toString(),
+          allTransactions: eachMonthExpense));
+    }
+    emit(ExpLoadedState(data: event.allExpenses));
+  }
+
+  FutureOr<void> filterYearWiseExpenseEvent(
+      FilterYearWiseExpenseEvent event, Emitter<ExpState> emit) {
+    yearWiseExpense.clear();
+    var listOfUniqueYear = [];
+    // List Of Unique Year Check and add
+    for (ExpenseModel eachexp in event.allExpenses) {
+      var mYear = DateTimeUtils.getFromatedYearFromMilliSeconds(
+          int.parse(eachexp.modelExpTimeStamp));
+      if (!listOfUniqueYear.contains(mYear)) {
+        listOfUniqueYear.add(mYear);
+      }
+    }
+    for (String year in listOfUniqueYear) {
+      List<ExpenseModel> eachYearExpense = [];
+      var totalOfYear = 00.0;
+      for (ExpenseModel eachexp in event.allExpenses) {
+        var mYear = DateTimeUtils.getFromatedYearFromMilliSeconds(
+            int.parse(eachexp.modelExpTimeStamp));
+        if (year == mYear) {
+          eachYearExpense.add(eachexp);
+          if (eachexp.modelExpType == 0) {
+            totalOfYear -= eachexp.modelExpAmount;
+          } else {
+            totalOfYear += eachexp.modelExpAmount;
+          }
+        }
+      }
+      var thisYear = DateTime.now();
+      var lastYear = DateTime(
+          DateTime.now().year - 1);
+      if (year == DateTimeUtils.getFormatedYearFromDateTime(thisYear)) {
+        year = 'This Year';
+      } else if (year == DateTimeUtils.getFormatedYearFromDateTime(lastYear)) {
+        year = 'Last Year';
+      }
+
+      yearWiseExpense.add(YearWiseExpenseModel(
+          data: year,
+          totalAmount: totalOfYear.toString(),
+          allTransactions: eachYearExpense));
+    }
+    emit(ExpLoadedState(data: event.allExpenses));
+  }
+
+  FutureOr<void> filterCategoryWiseExpenseEvent(
+      FilterCategoryWiseExpenseEvent event, Emitter<ExpState> emit) {}
 }

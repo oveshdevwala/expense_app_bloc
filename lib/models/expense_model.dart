@@ -51,15 +51,3 @@ class ExpenseModel {
   }
 }
 
-class DateWiseExpenseModel {
-  String data;
-  String totalAmount;
-  List<ExpenseModel> allTransactions;
-  DateWiseExpenseModel({
-    required this.data,
-    required this.totalAmount,
-    required this.allTransactions,
-  });
-  
-
-}

@@ -81,7 +81,7 @@ CREATE TABLE $expTable(
 
   Future<List<ExpenseModel>> fetchExpens() async {
     var db = await getDb();
-    var data = await db.query(expTable, orderBy:'$colExpTimeStamp DESC');
+    var data = await db.query(expTable, orderBy: '$colExpTimeStamp DESC');
     List<ExpenseModel> arrddata = [];
 
     for (Map<String, dynamic> eachExp in data) {

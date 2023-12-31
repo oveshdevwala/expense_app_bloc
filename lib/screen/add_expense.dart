@@ -89,10 +89,10 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
           dropdownColor: UiColors.tealBg,
           hint: const ColoredBox(color: Colors.black),
           borderRadius: BorderRadius.circular(15),
-          value: selectedExpType,
           items: expTypes
               .map((type) => DropdownMenuItem(value: type, child: Text(type)))
               .toList(),
+          value: selectedExpType,
           onChanged: (value) {
             selectedExpType = value!;
             setState(() {});
